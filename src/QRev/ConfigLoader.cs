@@ -46,6 +46,21 @@ namespace QRev
                 {"3-Point", "3PNT"},
             });
 
+            config.NavigationMethods = SanitizeMethods(config.NavigationMethods, new Dictionary<string, string>
+            {
+                {"BT", "BT"},
+                {"GGA", "GGA"},
+                {"VTG", "VTG"},
+            });
+
+            config.DepthReferences = SanitizeMethods(config.DepthReferences, new Dictionary<string, string>
+            {
+                {"BT", "BottomTrack"},
+                {"VB", "VerticalBeam"},
+                {"DS", "DepthSounder"},
+                {"Composite", "Composite"},
+            });
+
             config.DateTimeFormats = SanitizeList(config.DateTimeFormats, "MM/dd/yyyy HH:mm:ss");
 
             return config;

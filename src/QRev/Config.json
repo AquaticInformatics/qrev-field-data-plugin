@@ -8,5 +8,16 @@
   "BottomEstimateMethods": {
     "Power": "POWR",
     "No Slip": "NSLP"
+  },
+  "DepthReferences": {
+    "BT": "BottomTrack",
+    "VB": "VerticalBeam",
+    "DS": "DepthSounder",
+    "Composite": "Composite"
+  },
+    "NavigationMethods": {
+    "BT": "BT",
+    "GGA": "GGA",
+    "VTG": "VTG"
   }
 }
