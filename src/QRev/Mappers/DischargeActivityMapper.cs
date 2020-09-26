@@ -103,6 +103,7 @@ namespace QRev.Mappers
                 MeasurementDevice = new MeasurementDevice(channel.Instrument?.Manufacturer?.Value, channel.Instrument?.Model?.Value, channel.Instrument?.SerialNumber?.Value),
                 DischargeCoefficientVariation = channel.ChannelSummary?.Uncertainty?.COV?.Value.AsDouble(),
                 MagneticVariation = channel.Processing?.Navigation?.MagneticVariation?.Value.AsDouble(),
+                TransducerDepth = channel.Processing?.Depth?.ADCPDepth?.Value.AsDouble()
             };
 
             var exponent = channel.Processing?.Extrapolation?.Exponent?.Value.AsDouble();
