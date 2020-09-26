@@ -1,0 +1,12 @@
+﻿{
+  "DateTimeFormats": [ "MM/dd/yyyy HH:mm:ss" ],
+  "TopEstimateMethods": {
+    "Constant": "CNST",
+    "Power": "POWR",
+    "3-Point": "3PNT"
+  },
+  "BottomEstimateMethods": {
+    "Power": "POWR",
+    "No Slip": "NSLP"
+  }
+}

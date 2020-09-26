@@ -1,0 +1,48 @@
+image: Visual Studio 2019
+
+pull_requests:
+  do_not_increment_build_number: true
+
+platform: Any CPU
+configuration: Release
+
+shallow_clone: true
+skip_tags: true
+
+environment:
+  GITHUB_AUTH_TOKEN:
+    secure: e24gj/T2VZ5R4XwbNUwj+eu4FbHEqWKUhuvNKXcp4dRPxj8lgW3AbWgSitK5kzek
+
+assembly_info:
+  patch: true
+  file: AssemblyInfo.*
+  assembly_version: "{version}"
+  assembly_file_version: "{version}"
+  assembly_informational_version: "{version}"
+
+init:
+  - ps: |
+      If (-Not $env:APPVEYOR_PULL_REQUEST_NUMBER) {
+        $env:IS_NOT_PR = "true"
+      }
+
+before_build:
+  - nuget restore src\QRevPlugin.sln
+
+build:
+  project: src\QRevPlugin.sln
+
+artifacts:
+  - path: src\QRev\deploy\Release\QRev.plugin
+    name: ThePlugin
+    type: file
+
+deploy:
+  - provider: GitHub
+    tag: v$(APPVEYOR_BUILD_VERSION)
+    release: QRev field data plugin $(APPVEYOR_BUILD_VERSION)
+    description: ''
+    artifact: ThePlugin
+    auth_token: $(GITHUB_AUTH_TOKEN)
+    on:
+      is_not_pr: true
