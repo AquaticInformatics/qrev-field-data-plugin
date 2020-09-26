@@ -116,9 +116,7 @@ namespace QRev.Mappers
                     adcpDischargeSection.BottomEstimateExponent = exponent;
 
                 if (_config.BottomEstimateMethods.TryGetValue(bottomEstimateMethod, out var alias))
-                {
                     bottomEstimateMethod = alias;
-                }
 
                 adcpDischargeSection.BottomEstimateMethod = new BottomEstimateMethodPickList(bottomEstimateMethod);
             }
@@ -131,11 +129,34 @@ namespace QRev.Mappers
                     adcpDischargeSection.BottomEstimateExponent = exponent;
 
                 if (_config.TopEstimateMethods.TryGetValue(topEstimateMethod, out var alias))
-                {
                     topEstimateMethod = alias;
-                }
 
                 adcpDischargeSection.TopEstimateMethod = new TopEstimateMethodPickList(topEstimateMethod);
+            }
+
+            var depthCompositeEnabled = "On".Equals(channel.Processing?.Depth?.CompositeDepth?.Value, StringComparison.InvariantCultureIgnoreCase);
+            var depthReference = depthCompositeEnabled
+                ? $"{DepthReferenceType.Composite}"
+                : channel.Processing?.Depth?.Reference?.Value;
+
+            if (!string.IsNullOrEmpty(depthReference))
+            {
+                if (_config.DepthReferences.TryGetValue(depthReference, out var alias))
+                    depthReference = alias;
+
+                if (Enum.TryParse<DepthReferenceType>(depthReference, true, out var depthReferenceType))
+                    adcpDischargeSection.DepthReference = depthReferenceType;
+            }
+
+            var navigationCompositeEnabled = "On".Equals(channel.Processing?.Navigation?.CompositeTrack?.Value, StringComparison.InvariantCultureIgnoreCase);
+            var navigationReference = channel.Processing?.Navigation?.Reference?.Value;
+
+            if (!navigationCompositeEnabled && !string.IsNullOrEmpty(navigationReference))
+            {
+                if (_config.NavigationMethods.TryGetValue(navigationReference, out var alias))
+                    navigationReference = alias;
+
+                adcpDischargeSection.NavigationMethod = new NavigationMethodPickList(navigationReference);
             }
 
             return adcpDischargeSection;
