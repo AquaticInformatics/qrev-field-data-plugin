@@ -1,6 +1,6 @@
 # QRev Field Data Plugin
 
-[![Build status](https://ci.appveyor.com/api/projects/status/esuabwytd0w2wvkr/branch/master?svg=true)](https://ci.appveyor.com/project/SystemsAdministrator/qrev-field-data-plugin/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/o04tlahqy188fcos/branch/master?svg=true)](https://ci.appveyor.com/project/SystemsAdministrator/qrev-field-data-plugin/branch/master)
 
 An AQTS field data plugin for AQTS 2020.2-or-newer systems, which can import ADCP discharge summary XML measurements from the [USGS QREV software](https://hydroacoustics.usgs.gov/movingboat/QRev.shtml).
 
@@ -33,7 +33,7 @@ Use the included `PluginTester.exe` tool from the `Aquarius.FieldDataFramework` 
 4. Enter the **Command line arguments:** to launch your plugin
 
 ```
-/Plugin=SxSPro.dll /Json=AppendedResults.json /Data=..\..\..\..\data\QRevDischargeSummary.xml
+/Plugin=QRev.dll /Json=AppendedResults.json /Data=..\..\..\..\data\QRevDischargeSummary.xml
 ```
 
 The `/Plugin=` argument can be the filename of your plugin assembly, without any folder. The default working directory for a start action is the bin folder containing your plugin.
