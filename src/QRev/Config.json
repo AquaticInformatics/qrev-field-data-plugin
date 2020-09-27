@@ -1,5 +1,4 @@
 ﻿{
-  "DateTimeFormats": [ "MM/dd/yyyy HH:mm:ss" ],
   "TopEstimateMethods": {
     "Constant": "CNST",
     "Power": "POWR",

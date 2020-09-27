@@ -8,41 +8,40 @@ namespace QRev
 {
     public class Parser
     {
-        private readonly LocationInfo _location;
-        private readonly IFieldDataResultsAppender _appender;
-        private readonly ILog _logger;
+        private LocationInfo Location { get; }
+        private IFieldDataResultsAppender Appender { get; }
+        private ILog Logger { get; }
 
         public Parser(LocationInfo location, IFieldDataResultsAppender appender, ILog logger)
         {
-            _location = location;
-            _appender = appender;
-            _logger = logger;
+            Location = location;
+            Appender = appender;
+            Logger = logger;
         }
 
         public void Parse(Channel channel)
         {
-            var config = new ConfigLoader(_appender).Load();
-            var fieldVisitInfo = AppendMappedFieldVisitInfo(config, channel, _location);
+            var fieldVisitInfo = AppendMappedFieldVisitInfo(channel, Location);
 
-            AppendMappedMeasurements(config, channel, fieldVisitInfo);
+            AppendMappedMeasurements(channel, fieldVisitInfo);
         }
 
-        private FieldVisitInfo AppendMappedFieldVisitInfo(Config config, Channel channel, LocationInfo locationInfo)
+        private FieldVisitInfo AppendMappedFieldVisitInfo(Channel channel, LocationInfo locationInfo)
         {
-            var mapper = new FieldVisitMapper(config, channel, _location);
+            var mapper = new FieldVisitMapper(channel, Location);
             var fieldVisitDetails = mapper.MapFieldVisitDetails();
 
-            _logger.Info($"Successfully parsed one visit '{fieldVisitDetails.FieldVisitPeriod}' " +
-                         $"for location '{locationInfo.LocationIdentifier}'");
+            Logger.Info($"Successfully parsed one visit '{fieldVisitDetails.FieldVisitPeriod}' for location '{locationInfo.LocationIdentifier}'");
 
-            return _appender.AddFieldVisit(locationInfo, fieldVisitDetails);
+            return Appender.AddFieldVisit(locationInfo, fieldVisitDetails);
         }
 
-        private void AppendMappedMeasurements(Config config, Channel channel, FieldVisitInfo fieldVisitInfo)
+        private void AppendMappedMeasurements(Channel channel, FieldVisitInfo fieldVisitInfo)
         {
+            var config = new ConfigLoader(Appender).Load();
             var dischargeActivityMapper = new DischargeActivityMapper(config, fieldVisitInfo);
 
-            _appender.AddDischargeActivity(fieldVisitInfo, dischargeActivityMapper.Map(channel));
+            Appender.AddDischargeActivity(fieldVisitInfo, dischargeActivityMapper.Map(channel));
         }
     }
 }

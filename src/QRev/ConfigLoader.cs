@@ -61,8 +61,6 @@ namespace QRev
                 {"Composite", "Composite"},
             });
 
-            config.DateTimeFormats = SanitizeList(config.DateTimeFormats, "MM/dd/yyyy HH:mm:ss");
-
             return config;
         }
 
@@ -81,32 +79,6 @@ namespace QRev
                     kvp => kvp.Key,
                     kvp => kvp.Value,
                     StringComparer.InvariantCultureIgnoreCase);
-        }
-
-        private static string[] SanitizeList(IList<string> list, params string[] defaultIfEmpty)
-        {
-            if (defaultIfEmpty == null || defaultIfEmpty.Length == 0)
-                throw new ArgumentException("Can't be empty", nameof(defaultIfEmpty));
-
-            if (list == null)
-            {
-                list = new List<string>();
-            }
-
-            list = list
-                .Select(s => s.Trim())
-                .Where(s => !string.IsNullOrEmpty(s))
-                .ToList();
-
-            if (!list.Any())
-            {
-                foreach (var s in defaultIfEmpty)
-                {
-                    list.Add(s);
-                }
-            }
-
-            return list.ToArray();
         }
     }
 }
