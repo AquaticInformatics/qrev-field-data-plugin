@@ -9,15 +9,16 @@ namespace QRev.Mappers
 {
     public class FieldVisitMapper
     {
-        private readonly Channel _channel;
-        private readonly LocationInfo _location;
-        private readonly Config _config;
+        private Channel Channel { get; }
+        private TimeSpan UtcOffset { get; }
 
-        public FieldVisitMapper(Config config, Channel channel, LocationInfo location)
+        public FieldVisitMapper(Channel channel, LocationInfo location)
         {
-            _config = config ?? throw new ArgumentNullException(nameof(config));
-            _channel = channel ?? throw new ArgumentNullException(nameof(channel));
-            _location = location ?? throw new ArgumentNullException(nameof(location));
+            Channel = channel ?? throw new ArgumentNullException(nameof(channel));
+
+            UtcOffset = string.Compare(Channel.QRevVersion,"4", StringComparison.InvariantCultureIgnoreCase) < 0
+                ? location.UtcOffset
+                : TimeSpan.Zero;
         }
 
         public FieldVisitDetails MapFieldVisitDetails()
@@ -29,7 +30,7 @@ namespace QRev.Mappers
 
         private DateTimeInterval GetVisitTimePeriod()
         {
-            var times = (_channel.Transect ?? new ChannelTransect[0])
+            var times = (Channel.Transect ?? new ChannelTransect[0])
                 .SelectMany(t => new[] {t.StartDateTime?.Value, t.EndDateTime?.Value})
                 .Select(ParseDateTime)
                 .Where(dt => dt.HasValue)
@@ -45,8 +46,8 @@ namespace QRev.Mappers
 
         private DateTimeOffset? ParseDateTime(string s)
         {
-            return DateTime.TryParseExact(s, _config.DateTimeFormats, CultureInfo.InvariantCulture, DateTimeStyles.NoCurrentDateDefault | DateTimeStyles.AllowWhiteSpaces, out var dateTime)
-                ? (DateTimeOffset?)new DateTimeOffset(dateTime, _location.UtcOffset)
+            return DateTime.TryParseExact(s, "M/d/yyyy H:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.NoCurrentDateDefault | DateTimeStyles.AllowWhiteSpaces, out var dateTime)
+                ? (DateTimeOffset?)new DateTimeOffset(dateTime, UtcOffset)
                 : null;
         }
     }
