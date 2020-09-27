@@ -23,8 +23,8 @@ The JSON configuration information stores four settings:
 | --- | --- |
 | **TopEstimateMethods** | How to map the QRev `Constant`, `Power`, and `3-Point` top extrapolation methods to the AQTS `Top Estimate Method` list items. |
 | **BottomEstimateMethods** | How to map the QRev `Power` and `No Slip` bottom extrapolation methods to the AQTS `Bottom Estimate Method` list items. |
-| **DepthReferences** | How to map the QRev `BT`, 'VB', and `DS` source depths to the AQTS `Depth Reference` list items. |
-| **NavigationMethods** | How to map the QRev `BT`, 'GGA', and `VTG` navigation references to the AQTS `Navigation Method` list items. |
+| **DepthReferences** | How to map the QRev `BT`, `VB`, and `DS` source depths to the AQTS `Depth Reference` list items. |
+| **NavigationMethods** | How to map the QRev `BT`, `GGA`, and `VTG` navigation references to the AQTS `Navigation Method` list items. |
 
 
 ```json
