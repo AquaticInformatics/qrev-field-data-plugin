@@ -15,20 +15,20 @@ namespace QRev.Mappers
 {
     internal class DischargeActivityMapper
     {
-        private readonly FieldVisitInfo _fieldVisitInfo;
-        private readonly Config _config;
+        private FieldVisitInfo FieldVisitInfo { get; }
+        private Config Config { get; }
 
         public bool IsMetric { get; private set; }
 
         public DischargeActivityMapper(Config config, FieldVisitInfo fieldVisitInfo)
         {
-            _config = config ?? throw new ArgumentNullException(nameof(config));
-            _fieldVisitInfo = fieldVisitInfo ?? throw new ArgumentNullException(nameof(fieldVisitInfo));
+            Config = config ?? throw new ArgumentNullException(nameof(config));
+            FieldVisitInfo = fieldVisitInfo ?? throw new ArgumentNullException(nameof(fieldVisitInfo));
         }
 
         public DischargeActivity Map(Channel channel)
         {
-            IsMetric = "cms" == channel.ChannelSummary?.Discharge?.Total?.unitsCode;
+            IsMetric = InferMetricUnits(channel);
 
             var unitSystem = IsMetric
                 ? Units.MetricUnitSystem
@@ -39,6 +39,28 @@ namespace QRev.Mappers
             SetDischargeSection(dischargeActivity, channel, unitSystem);
 
             return dischargeActivity;
+        }
+
+        private bool InferMetricUnits(Channel channel)
+        {
+            ThrowIfUnexpectedUnits( "cms", nameof(channel.ChannelSummary.Discharge.Total          ), channel.ChannelSummary?.Discharge?.Total?.unitsCode );
+            ThrowIfUnexpectedUnits( "m",   nameof(channel.ChannelSummary.Other.MeanWidth          ), channel.ChannelSummary?.Other?.MeanWidth?.unitsCode );
+            ThrowIfUnexpectedUnits( "sqm", nameof(channel.ChannelSummary.Other.MeanArea           ), channel.ChannelSummary?.Other?.MeanArea?.unitsCode );
+            ThrowIfUnexpectedUnits( "mps", nameof(channel.ChannelSummary.Other.MeanQoverA         ), channel.ChannelSummary?.Other?.MeanQoverA?.unitsCode );
+            ThrowIfUnexpectedUnits( "deg", nameof(channel.Processing.Navigation.MagneticVariation ), channel.Processing?.Navigation?.MagneticVariation?.unitsCode );
+            ThrowIfUnexpectedUnits( "m",   nameof(channel.Processing.Depth.ADCPDepth              ), channel.Processing?.Depth?.ADCPDepth?.unitsCode );
+
+            return true;
+        }
+
+        private void ThrowIfUnexpectedUnits(string expectedUnits, string name, string actualUnits)
+        {
+            if (string.IsNullOrEmpty(actualUnits))
+                // A value might not be provided.
+                return;
+
+            if (actualUnits != expectedUnits)
+                throw new ArgumentException($"Expected units '{expectedUnits}' for {name} but found '{actualUnits}'");
         }
 
         private DischargeActivity CreateDischargeActivityWithSummary(Channel channel, UnitSystem unitSystem)
@@ -65,7 +87,7 @@ namespace QRev.Mappers
 
         private DateTimeInterval GetMeasurementPeriod()
         {
-            return new DateTimeInterval(_fieldVisitInfo.StartDate, _fieldVisitInfo.EndDate);
+            return new DateTimeInterval(FieldVisitInfo.StartDate, FieldVisitInfo.EndDate);
         }
 
         private void SetDischargeSection(DischargeActivity dischargeActivity, Channel channel, UnitSystem unitSystem)
@@ -115,7 +137,7 @@ namespace QRev.Mappers
                 if (BottomMethodsWithExponents.Contains(bottomEstimateMethod))
                     adcpDischargeSection.BottomEstimateExponent = exponent;
 
-                if (_config.BottomEstimateMethods.TryGetValue(bottomEstimateMethod, out var alias))
+                if (Config.BottomEstimateMethods.TryGetValue(bottomEstimateMethod, out var alias))
                     bottomEstimateMethod = alias;
 
                 adcpDischargeSection.BottomEstimateMethod = new BottomEstimateMethodPickList(bottomEstimateMethod);
@@ -128,7 +150,7 @@ namespace QRev.Mappers
                 if (TopMethodsWithExponents.Contains(topEstimateMethod))
                     adcpDischargeSection.BottomEstimateExponent = exponent;
 
-                if (_config.TopEstimateMethods.TryGetValue(topEstimateMethod, out var alias))
+                if (Config.TopEstimateMethods.TryGetValue(topEstimateMethod, out var alias))
                     topEstimateMethod = alias;
 
                 adcpDischargeSection.TopEstimateMethod = new TopEstimateMethodPickList(topEstimateMethod);
@@ -141,7 +163,7 @@ namespace QRev.Mappers
 
             if (!string.IsNullOrEmpty(depthReference))
             {
-                if (_config.DepthReferences.TryGetValue(depthReference, out var alias))
+                if (Config.DepthReferences.TryGetValue(depthReference, out var alias))
                     depthReference = alias;
 
                 if (Enum.TryParse<DepthReferenceType>(depthReference, true, out var depthReferenceType))
@@ -153,7 +175,7 @@ namespace QRev.Mappers
 
             if (!navigationCompositeEnabled && !string.IsNullOrEmpty(navigationReference))
             {
-                if (_config.NavigationMethods.TryGetValue(navigationReference, out var alias))
+                if (Config.NavigationMethods.TryGetValue(navigationReference, out var alias))
                     navigationReference = alias;
 
                 adcpDischargeSection.NavigationMethod = new NavigationMethodPickList(navigationReference);
