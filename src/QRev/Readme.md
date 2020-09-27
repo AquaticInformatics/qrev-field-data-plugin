@@ -8,12 +8,12 @@ But if you have changed the configuration of some of your AQTS system's configur
 
 ## The `Config.json` file stores the plugin's configuration
 
-The plugin can be configured via a [`Config.json`](./src/QRev/Config.json) JSON document, to control the date and time formats used by your organization.
+The plugin can be configured via a [`Config.json`](./Config.json) JSON document, to control the date and time formats used by your organization.
 
 Use the Settings page of the System Config app to change the configuration setting.
 - **Group**: `FieldDataPluginConfig-QRev`
 - **Key**: `Config`<br/>
-- **Value**: The entire contents of the Config.json file. If blank or omitted, the plugin's default [`Config.json`](./src/QRev/Config.json) is used.
+- **Value**: The entire contents of the Config.json file. If blank or omitted, the plugin's default [`Config.json`](./Config.json) is used.
 
 This JSON document is reloaded each time a QRev file is uploaded to AQTS for parsing. Updates to the setting will take effect on the next QRev file parsed.
 
