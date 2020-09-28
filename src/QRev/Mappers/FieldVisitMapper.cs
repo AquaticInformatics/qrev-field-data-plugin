@@ -16,9 +16,7 @@ namespace QRev.Mappers
         {
             Channel = channel ?? throw new ArgumentNullException(nameof(channel));
 
-            UtcOffset = string.Compare(Channel.QRevVersion,"4", StringComparison.InvariantCultureIgnoreCase) < 0
-                ? location.UtcOffset
-                : TimeSpan.Zero;
+            UtcOffset = location.UtcOffset;
         }
 
         public FieldVisitDetails MapFieldVisitDetails()
