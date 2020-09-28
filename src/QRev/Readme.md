@@ -4,8 +4,6 @@ The QRev plugin will work with stock AQTS 2020.2 systems with no special configu
 
 But if you have changed the configuration of some of your AQTS system's configurable "Drop-down Lists", then you may need to tell the QRev plugin how to correctly interpret a few key fields.
 
-
-
 ## The `Config.json` file stores the plugin's configuration
 
 The plugin can be configured via a [`Config.json`](./Config.json) JSON document, to control the date and time formats used by your organization.
