@@ -44,6 +44,7 @@ namespace QRev.Mappers
         private bool InferMetricUnits(Channel channel)
         {
             ThrowIfUnexpectedUnits( "cms", nameof(channel.ChannelSummary.Discharge.Total          ), channel.ChannelSummary?.Discharge?.Total?.unitsCode );
+            ThrowIfUnexpectedUnits("cms", nameof(channel.ChannelSummary.Discharge.Middle          ), channel.ChannelSummary?.Discharge?.Middle?.unitsCode);
             ThrowIfUnexpectedUnits( "m",   nameof(channel.ChannelSummary.Other.MeanWidth          ), channel.ChannelSummary?.Other?.MeanWidth?.unitsCode );
             ThrowIfUnexpectedUnits( "sqm", nameof(channel.ChannelSummary.Other.MeanArea           ), channel.ChannelSummary?.Other?.MeanArea?.unitsCode );
             ThrowIfUnexpectedUnits( "mps", nameof(channel.ChannelSummary.Other.MeanQoverA         ), channel.ChannelSummary?.Other?.MeanQoverA?.unitsCode );
@@ -105,6 +106,12 @@ namespace QRev.Mappers
         private AdcpDischargeSection CreateDischargeSectionWithDescription(DischargeActivity dischargeActivity,
             Channel channel, UnitSystem unitSystem)
         {
+            var middleDischarge = channel.ChannelSummary?.Discharge?.Middle?.Value;
+
+            var percentOfDischargeMeasured = middleDischarge.HasValue
+                ? (double?) (100.0 * middleDischarge.Value.AsDouble() / dischargeActivity.Discharge.Value)
+                : null;
+
             var adcpDischargeSection = new AdcpDischargeSection(
                 dischargeActivity.MeasurementPeriod,
                 ChannelMeasurementBaseConstants.DefaultChannelName,
@@ -125,7 +132,8 @@ namespace QRev.Mappers
                 MeasurementDevice = new MeasurementDevice(channel.Instrument?.Manufacturer?.Value, channel.Instrument?.Model?.Value, channel.Instrument?.SerialNumber?.Value),
                 DischargeCoefficientVariation = channel.ChannelSummary?.Uncertainty?.COV?.Value.AsDouble(),
                 MagneticVariation = channel.Processing?.Navigation?.MagneticVariation?.Value.AsDouble(),
-                TransducerDepth = channel.Processing?.Depth?.ADCPDepth?.Value.AsDouble()
+                TransducerDepth = channel.Processing?.Depth?.ADCPDepth?.Value.AsDouble(),
+                PercentOfDischargeMeasured = percentOfDischargeMeasured,
             };
 
             var exponent = channel.Processing?.Extrapolation?.Exponent?.Value.AsDouble();
