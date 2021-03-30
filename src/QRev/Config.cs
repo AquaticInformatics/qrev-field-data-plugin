@@ -4,6 +4,7 @@ namespace QRev
 {
     public class Config
     {
+        public bool ImperialUnits { get; set; }
         public Dictionary<string,string> TopEstimateMethods { get; set; }
         public Dictionary<string,string> BottomEstimateMethods { get; set; }
         public Dictionary<string, string> NavigationMethods { get; set; }
