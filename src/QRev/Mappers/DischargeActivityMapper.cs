@@ -9,7 +9,6 @@ using FieldDataPluginFramework.DataModel.PickLists;
 using FieldDataPluginFramework.Units;
 using QRev.Helper;
 using QRev.Schema;
-using QRev.SystemCode;
 
 namespace QRev.Mappers
 {
@@ -18,7 +17,7 @@ namespace QRev.Mappers
         private FieldVisitInfo FieldVisitInfo { get; }
         private Config Config { get; }
 
-        public bool IsMetric { get; private set; }
+        private UnitConverter UnitConverter { get; set; }
 
         public DischargeActivityMapper(Config config, FieldVisitInfo fieldVisitInfo)
         {
@@ -28,11 +27,11 @@ namespace QRev.Mappers
 
         public DischargeActivity Map(Channel channel)
         {
-            IsMetric = InferMetricUnits(channel);
+            ValidateInternalMetricUnits(channel);
 
-            var unitSystem = IsMetric
-                ? Units.MetricUnitSystem
-                : Units.ImperialUnitSystem;
+            UnitConverter = new UnitConverter(Config.ImperialUnits);
+
+            var unitSystem = CreateUnitSystem();
 
             var dischargeActivity = CreateDischargeActivityWithSummary(channel, unitSystem);
 
@@ -41,7 +40,7 @@ namespace QRev.Mappers
             return dischargeActivity;
         }
 
-        private bool InferMetricUnits(Channel channel)
+        private void ValidateInternalMetricUnits(Channel channel)
         {
             ThrowIfUnexpectedUnits( "cms", nameof(channel.ChannelSummary.Discharge.Total          ), channel.ChannelSummary?.Discharge?.Total?.unitsCode );
             ThrowIfUnexpectedUnits("cms", nameof(channel.ChannelSummary.Discharge.Middle          ), channel.ChannelSummary?.Discharge?.Middle?.unitsCode);
@@ -50,8 +49,6 @@ namespace QRev.Mappers
             ThrowIfUnexpectedUnits( "mps", nameof(channel.ChannelSummary.Other.MeanQoverA         ), channel.ChannelSummary?.Other?.MeanQoverA?.unitsCode );
             ThrowIfUnexpectedUnits( "deg", nameof(channel.Processing.Navigation.MagneticVariation ), channel.Processing?.Navigation?.MagneticVariation?.unitsCode );
             ThrowIfUnexpectedUnits( "m",   nameof(channel.Processing.Depth.ADCPDepth              ), channel.Processing?.Depth?.ADCPDepth?.unitsCode );
-
-            return true;
         }
 
         private void ThrowIfUnexpectedUnits(string expectedUnits, string name, string actualUnits)
@@ -64,6 +61,28 @@ namespace QRev.Mappers
                 throw new ArgumentException($"Expected units '{expectedUnits}' for {name} but found '{actualUnits}'");
         }
 
+        private UnitSystem CreateUnitSystem()
+        {
+            UnitConverter = new UnitConverter(Config.ImperialUnits);
+
+            return new UnitSystem
+            {
+                DistanceUnitId = GetUnitId(UnitConverter.DistanceUnitGroup),
+                AreaUnitId = GetUnitId(UnitConverter.AreaUnitGroup),
+                VelocityUnitId = GetUnitId(UnitConverter.VelocityUnitGroup),
+                DischargeUnitId = GetUnitId(UnitConverter.DischargeUnitGroup),
+            };
+        }
+
+        private string GetUnitId(string unitGroup)
+        {
+            var unit = UnitConverter.Units[unitGroup];
+
+            return UnitConverter.IsImperial
+                ? unit.ImperialId
+                : unit.MetricId;
+        }
+
         private DischargeActivity CreateDischargeActivityWithSummary(Channel channel, UnitSystem unitSystem)
         {
             var factory = new DischargeActivityFactory(unitSystem);
@@ -73,7 +92,9 @@ namespace QRev.Mappers
 
             //Discharge summary:
             var measurementPeriod = GetMeasurementPeriod();
-            var dischargeActivity = factory.CreateDischargeActivity(measurementPeriod, totalDischarge.AsDouble());
+            var dischargeActivity = factory.CreateDischargeActivity(
+                measurementPeriod,
+                UnitConverter.ConvertDischarge(totalDischarge.AsDouble()));
 
             dischargeActivity.Comments = string.Join("\n", new[]
                 {
@@ -109,7 +130,7 @@ namespace QRev.Mappers
             var middleDischarge = channel.ChannelSummary?.Discharge?.Middle?.Value;
 
             var percentOfDischargeMeasured = middleDischarge.HasValue
-                ? (double?) (100.0 * middleDischarge.Value.AsDouble() / dischargeActivity.Discharge.Value)
+                ? (double?) (100.0 * UnitConverter.ConvertDischarge(middleDischarge.Value.AsDouble()) / dischargeActivity.Discharge.Value)
                 : null;
 
             var adcpDischargeSection = new AdcpDischargeSection(
@@ -123,16 +144,16 @@ namespace QRev.Mappers
             {
                 Party = dischargeActivity.Party,
                 Comments = dischargeActivity.Comments,
-                WidthValue = channel.ChannelSummary?.Other?.MeanWidth?.Value.AsDouble(),
-                AreaValue = channel.ChannelSummary?.Other?.MeanArea?.Value.AsDouble(),
-                VelocityAverageValue = channel.ChannelSummary?.Other?.MeanQoverA?.Value.AsDouble(),
+                WidthValue = UnitConverter.ConvertDistance(channel.ChannelSummary?.Other?.MeanWidth?.Value.AsDouble()),
+                AreaValue = UnitConverter.ConvertArea(channel.ChannelSummary?.Other?.MeanArea?.Value.AsDouble()),
+                VelocityAverageValue = UnitConverter.ConvertVelocity(channel.ChannelSummary?.Other?.MeanQoverA?.Value.AsDouble()),
                 NumberOfTransects = channel.ChannelSummary?.Other?.NumberofTransects?.Value,
                 SoftwareVersion = channel.QRevVersion,
                 FirmwareVersion = channel.Instrument?.FirmwareVersion?.Value,
                 MeasurementDevice = new MeasurementDevice(channel.Instrument?.Manufacturer?.Value, channel.Instrument?.Model?.Value, channel.Instrument?.SerialNumber?.Value),
                 DischargeCoefficientVariation = channel.ChannelSummary?.Uncertainty?.COV?.Value.AsDouble(),
                 MagneticVariation = channel.Processing?.Navigation?.MagneticVariation?.Value.AsDouble(),
-                TransducerDepth = channel.Processing?.Depth?.ADCPDepth?.Value.AsDouble(),
+                TransducerDepth = UnitConverter.ConvertDistance(channel.Processing?.Depth?.ADCPDepth?.Value.AsDouble()),
                 PercentOfDischargeMeasured = percentOfDischargeMeasured,
             };
 

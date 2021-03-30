@@ -15,10 +15,11 @@ Use the Settings page of the System Config app to change the configuration setti
 
 This JSON document is reloaded each time a QRev file is uploaded to AQTS for parsing. Updates to the setting will take effect on the next QRev file parsed.
 
-The JSON configuration information stores four settings:
+The JSON configuration information stores five settings:
 
 | Property Name | Description |
 | --- | --- |
+| **ImperialUnits** | A boolean flag which unit system of the imported field visit data.<br/><br/>- `true` for Imperial units.<br/>- `false` for Metric units.<br/><br/>Defaults to `false`. |
 | **TopEstimateMethods** | How to map the QRev `Constant`, `Power`, and `3-Point` top extrapolation methods to the AQTS `Top Estimate Method` list items. |
 | **BottomEstimateMethods** | How to map the QRev `Power` and `No Slip` bottom extrapolation methods to the AQTS `Bottom Estimate Method` list items. |
 | **DepthReferences** | How to map the QRev `BT`, `VB`, and `DS` source depths to the AQTS `Depth Reference` list items. |
@@ -27,6 +28,7 @@ The JSON configuration information stores four settings:
 
 ```json
 {
+  "ImperialUnits": false,
   "TopEstimateMethods": {
     "Constant": "CNST",
     "Power": "POWR",

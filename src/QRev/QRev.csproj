@@ -60,7 +60,7 @@
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SystemCode\Parameters.cs" />
-    <Compile Include="SystemCode\Units.cs" />
+    <Compile Include="UnitConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Config.json">
