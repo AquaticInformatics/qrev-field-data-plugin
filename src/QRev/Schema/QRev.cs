@@ -3974,7 +3974,7 @@ namespace QRev.Schema {
         
         private string typeField;
         
-        private decimal valueField;
+        private string valueField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -3989,7 +3989,7 @@ namespace QRev.Schema {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlTextAttribute()]
-        public decimal Value {
+        public string Value {
             get {
                 return this.valueField;
             }
@@ -4044,7 +4044,7 @@ namespace QRev.Schema {
         
         private string typeField;
         
-        private decimal valueField;
+        private string valueField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -4059,7 +4059,7 @@ namespace QRev.Schema {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlTextAttribute()]
-        public decimal Value {
+        public string Value {
             get {
                 return this.valueField;
             }
@@ -5300,7 +5300,7 @@ namespace QRev.Schema {
         
         private string typeField;
         
-        private decimal valueField;
+        private string valueField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -5315,7 +5315,7 @@ namespace QRev.Schema {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlTextAttribute()]
-        public decimal Value {
+        public string Value {
             get {
                 return this.valueField;
             }
@@ -5453,7 +5453,7 @@ namespace QRev.Schema {
         
         private string typeField;
         
-        private decimal valueField;
+        private string valueField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -5468,7 +5468,7 @@ namespace QRev.Schema {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlTextAttribute()]
-        public decimal Value {
+        public string Value {
             get {
                 return this.valueField;
             }
